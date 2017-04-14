@@ -1,0 +1,23 @@
+private void deleteCombinedMutantClass() {
+		// TODO Auto-generated method stub
+		String path = combinedMutantFile.getAbsolutePath();
+		String[] p = path.split("/");
+		p[p.length - 1] = "CombinedMutants.class";
+		String newPath = "";
+		for (int i = 0; i < p.length; i++) {
+			if (i >= 1) {
+				newPath = newPath + "/" + p[i];
+			} else {
+				newPath = newPath + p[i];
+			}
+		}
+		System.out.println("path: " + path);
+		System.out.println("newPath: " + newPath);
+
+		File file = new File(newPath);
+		if (file.exists()) {
+			System.out.println(".class file is found, start to delete...");
+			boolean d = file.delete();
+			System.out.println("class deleted: " + d);
+		}
+	}

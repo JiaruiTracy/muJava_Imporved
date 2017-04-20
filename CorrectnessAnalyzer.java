@@ -1,5 +1,4 @@
 package analyzer;
-//line 337, ????
 import static util.Constants.*;
 
 import java.lang.reflect.Method;
@@ -39,9 +38,8 @@ public class CorrectnessAnalyzer {
 	 * use a String[] to save relative correctness mutants, return it to Plugin.java
 	 * @author Jiarui Tian
 	 */
-//	private ArrayList<ArrayList<String>> usefulRSrAMutants = new ArrayList<ArrayList<String>>;
 	private List<?>[] usefulRSrAMutants = new List<?>[3];
-	//
+	
 	
 	public CorrectnessAnalyzer(Class<? extends Object> combinedMutantsClazz, Class<? extends Object> baseProgramClazz) {
 		this.combinedMutantsClazz = combinedMutantsClazz;
@@ -360,10 +358,6 @@ public class CorrectnessAnalyzer {
 		ArrayList<String> RMutants = new ArrayList<String>();
 		for (String mutant : relativelyCorrectMutants) {
 			System.out.println(count + ". " + mutant);
-			/*
-			 * save relativelyCorrectMutants into ArrayList<ArrayList<String>>[0]
-			 * @author Jiarui Tian
-			 */
 			RMutants.add(mutant);
 			count++;
 		}
@@ -397,11 +391,7 @@ public class CorrectnessAnalyzer {
 		 * test return value
 		 * @author Jiarui Tian
 //		 */
-//		System.out.println("usefulRelativeMutants in CorrectnessAnalyzer.java: ");
-//		for(int i=0;i<usefulRelativeMutants.size();i++){
-//			System.out.println(usefulRelativeMutants.get(i));
-//		}
-//		System.out.println("analyzed: "+usefulRSrAMutants[0].toString()+"abs.size: "+usefulRSrAMutants[2].size());
+
 		return usefulRSrAMutants;
 	}
 }

@@ -131,8 +131,6 @@ public class Plugin {
 		usefulMutants = analyzer.analyzeAllMutants(specs, dataSet);
 
 	}
-
-	// !!!!still have bugs
 	private void combineSession() {
 		for (int j = 0; j < 2; j++) {
 			for (int i = 0; i < usefulMutants[j].size(); i++) {
@@ -140,24 +138,18 @@ public class Plugin {
 				int l = Character.getNumericValue(sessionName.charAt(sessionName.length() - 1)) + i + 1;
 				newSession[0] = "session=parse_session" + l;
 				newSession[1] = "operator=" + operatorString;
-				// !!!have problem to get mutants path
-				// ArrayList element:bubbleSort_AORB_13
 				String[] tempFileName = ((String) usefulMutants[j].get(i)).split("_");
 				String opFileName = tempFileName[1] + "_" + tempFileName[2];
 				// change first part of below string
 				newSession[2] = "basep=/Users/tracyTJR/Documents/workspace/muJavaPlugin/src/mujava/" + sessionName
 						+ "/result/ArrayOperations/traditional_mutants/int_bubbleSort(int)/" + opFileName
 						+ "/ArrayOperations.java";
-				// newSs.add(newSession);
+
 				mutantStack.push(newSession);
 				System.out.println("newSession is: " + newSession[0].toString() + "," + newSession[1].toString() + ","
 						+ newSession[2].toString());
 			}
 		}
-//		if (usefulMutants[2] != null) {
-//			System.out.println("usefM[2]: size=" + usefulMutants[2].size() + ",usefulMutants[2]=" 
-//		+ usefulMutants[2]);
-//		}
 	}
 
 	/*
@@ -169,22 +161,9 @@ public class Plugin {
 
 		// Plugin plugin = new Plugin();
 
-		/// mutantStack.push(args);
-		/// while (!mutantStack.isEmpty()) {
-
-		// mutantStack.pop();
-
 		mutantStack.push(args);
+		while (!mutantStack.isEmpty()) {
 
-		// if (usefulMutants[2]!=null) {// actually it should be 3
-		// System.out.println("find absolute correctness mutant! " +
-		// usefulMutants[2].get(0).toString());
-		// } else {
-		while (!mutantStack.isEmpty()) {// &!absolute
-										// correctness
-										// mutant
-
-			// for(int i=0;i<3;i++){
 			String[] executeSession = mutantStack.pop();
 			mutantQueue.add(executeSession);
 
@@ -203,24 +182,13 @@ public class Plugin {
 						// ArrayList<String> usefulMutants
 
 			combineSession();
-			// System.out.println("Start combineSession, try
-			// getAbsolutePath():");
 			if(usefulMutants[2].size()>0){
 				break;
 			}
-			// }
+			
 		}
 	}
 
 }
 
-// return usefulMutants;
-/*
- * new basep: /Users/tracyTJR/Documents/workspace/muJavaPlugin/src/mujava/
- * parse_session2/result/ArrayOperations/traditional_mutants/
- * int_bubbleSort(int)/AORB_8/ArrayOperations.java
- * 
- * returned value: bubbleSort_AORB_8
- */
 
-// }

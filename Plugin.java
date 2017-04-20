@@ -43,9 +43,9 @@ public class Plugin {
 	 * define a ArrayList<String> to store relative correctness mutants
 	 */
 	private Stack<String[]> mutantStack = new Stack<String[]>();
-	// private Queue<String> mutantQueue = new LinkedList<String>();
+	private Queue<String[]> mutantQueue = new LinkedList<String[]>();
 
-	private List<String> usefulMutants = new ArrayList<String>();
+	private List<?>[] usefulMutants = new List<?>[3];
 
 	public Plugin(SpecificationProvider specs, DataProvider dataSet) {
 
@@ -105,12 +105,12 @@ public class Plugin {
 
 	private void combineMutantMethodsInSingleJavaFile() {
 		/*
-		 * @modifier Jiarui Tian
-		 * replace the static combined mutant file name with dynamic file name
-		 * reason: If the name of the files which needed to be compiled are same,
-		 * JVM code cache only load the first compiled file
+		 * @modifier Jiarui Tian replace the static combined mutant file name
+		 * with dynamic file name reason: If the name of the files which needed
+		 * to be compiled are same, JVM code cache only load the first compiled
+		 * file
 		 */
-		String combinedMutantFileName = sessionName+"CombinedMutants";
+		String combinedMutantFileName = sessionName + "CombinedMutants";
 		combinedMutantFile = fileUtil.combineMutants(baseProgram, combinedMutantFileName);
 	}
 
@@ -134,48 +134,37 @@ public class Plugin {
 
 	// !!!!still have bugs
 	private void combineSession() {
-		// List<String[]> newSs = new ArrayList<String[]>();
-		for (int i = 0; i < usefulMutants.size(); i++) {
-			String[] newSession = new String[3];
-			int j = Character.getNumericValue(sessionName.charAt(sessionName.length() - 1)) + i + 1;
-			newSession[0] = "session=parse_session" + j;
-			newSession[1] = "operator=" + operatorString;
-			// !!!have problem to get mutants path
-			// ArrayList element:bubbleSort_AORB_13
-			String[] tempFileName = usefulMutants.get(i).split("_");
-			String opFileName = tempFileName[1] + "_" + tempFileName[2];
-			newSession[2] = "basep=/Users/tracyTJR/Documents/workspace/muJavaPlugin/src/mujava/" + sessionName
-					+ "/result/ArrayOperations/traditional_mutants/int_bubbleSort(int)/" + opFileName
-					+ "/ArrayOperations.java";
-			// newSs.add(newSession);
-			mutantStack.push(newSession);
+		for (int j = 0; j < 2; j++) {
+			for (int i = 0; i < usefulMutants[j].size(); i++) {
+				String[] newSession = new String[3];
+				int l = Character.getNumericValue(sessionName.charAt(sessionName.length() - 1)) + i + 1;
+				newSession[0] = "session=parse_session" + l;
+				newSession[1] = "operator=" + operatorString;
+				// !!!have problem to get mutants path
+				// ArrayList element:bubbleSort_AORB_13
+				String[] tempFileName = ((String) usefulMutants[j].get(i)).split("_");
+				String opFileName = tempFileName[1] + "_" + tempFileName[2];
+				// change first part of below string
+				newSession[2] = "basep=/Users/tracyTJR/Documents/workspace/muJavaPlugin/src/mujava/" + sessionName
+						+ "/result/ArrayOperations/traditional_mutants/int_bubbleSort(int)/" + opFileName
+						+ "/ArrayOperations.java";
+				// newSs.add(newSession);
+				mutantStack.push(newSession);
+				System.out.println("newSession is: " + newSession[0].toString() + "," + newSession[1].toString() + ","
+						+ newSession[2].toString());
+			}
 		}
+//		if (usefulMutants[2] != null) {
+//			System.out.println("usefM[2]: size=" + usefulMutants[2].size() + ",usefulMutants[2]=" 
+//		+ usefulMutants[2]);
+//		}
 	}
 
-//	private void deleteCombinedMutantClass() {
-//		// TODO Auto-generated method stub
-//		String path = combinedMutantFile.getAbsolutePath();
-//		String[] p = path.split("/");
-//		p[p.length-1] = "CombinedMutants.class";
-//		String newPath = "";
-//		for(int i=0;i<p.length;i++){
-//			if(i>=1){
-//				newPath = newPath + "/"+p[i];
-//			}else{
-//				newPath = newPath + p[i];
-//			}
-//		}
-//		System.out.println("path: "+path);
-//		System.out.println("newPath: "+newPath);
-//		
-//		File file = new File(newPath);
-//		if(file.exists()){
-//			System.out.println(".class file is found, start to delete...");
-//			boolean d = file.delete();
-//			System.out.println("class deleted: "+d);
-//		}
-//	}
-	
+	/*
+	 * check if top two mutants are same, if same, means it will lead to
+	 * everlasting loop and all generated mutants will be same
+	 */
+
 	public void execute(String[] args) {
 
 		// Plugin plugin = new Plugin();
@@ -185,50 +174,53 @@ public class Plugin {
 
 		// mutantStack.pop();
 
-		Thread.currentThread().setName("Main-Thread");
+		mutantStack.push(args);
 
-		parseArgs(args);// parse args, involves stack and queue storage.
+		// if (usefulMutants[2]!=null) {// actually it should be 3
+		// System.out.println("find absolute correctness mutant! " +
+		// usefulMutants[2].get(0).toString());
+		// } else {
+		while (!mutantStack.isEmpty()) {// &!absolute
+										// correctness
+										// mutant
 
-		generateMutantsUsingMuJava();
+			// for(int i=0;i<3;i++){
+			String[] executeSession = mutantStack.pop();
+			mutantQueue.add(executeSession);
 
-		combineMutantMethodsInSingleJavaFile();
+			Thread.currentThread().setName("Main-Thread");
 
-		compileAll();
+			parseArgs(executeSession);// parse args, involves stack and
+										// queue storage.
 
-		analyze();// return usefull mutants and store them into
-					// ArrayList<String> usefulMutants
+			generateMutantsUsingMuJava();
 
-//		deleteCombinedMutantClass();//donnot need to delete .class file
-		
-		
-		/// combineSession();
+			combineMutantMethodsInSingleJavaFile();
 
-		// List<String[]> combinedSession = combineSession();
-		// int x = 0;
-		// while(!combinedSession.isEmpty()){
-		// mutantStack.push(combinedSession.get(x));
-		// }
+			compileAll();
 
-		/// execute((String[])mutantStack.pop());
+			analyze();// return usefull mutants and store them into
+						// ArrayList<String> usefulMutants
 
+			combineSession();
+			// System.out.println("Start combineSession, try
+			// getAbsolutePath():");
+			if(usefulMutants[2].size()>0){
+				break;
+			}
+			// }
+		}
 	}
 
-	
-
-	// System.out.println("====Plugin has been received by
-	// usefulMutants=====");
-	// for(int i=0;i<usefulMutants.size();i++){
-	// System.out.println(usefulMutants.get(i));
-	// System.out.println("");
-	// }
-
-	// return usefulMutants;
-	/*
-	 * new basep: /Users/tracyTJR/Documents/workspace/muJavaPlugin/src/mujava/
-	 * parse_session2/result/ArrayOperations/traditional_mutants/
-	 * int_bubbleSort(int)/AORB_8/ArrayOperations.java
-	 * 
-	 * returned value: bubbleSort_AORB_8
-	 */
-
 }
+
+// return usefulMutants;
+/*
+ * new basep: /Users/tracyTJR/Documents/workspace/muJavaPlugin/src/mujava/
+ * parse_session2/result/ArrayOperations/traditional_mutants/
+ * int_bubbleSort(int)/AORB_8/ArrayOperations.java
+ * 
+ * returned value: bubbleSort_AORB_8
+ */
+
+// }
